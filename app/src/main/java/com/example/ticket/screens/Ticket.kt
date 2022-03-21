@@ -3,11 +3,17 @@ package com.example.ticket.screens
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.content.Context
 import android.view.View
 import android.view.animation.LinearInterpolator
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
+import android.view.MotionEvent
+import androidx.compose.foundation.gestures.detectDragGestures
+
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,13 +38,18 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.consumeAllChanges
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -49,6 +60,7 @@ import java.lang.reflect.Array.get
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 @SuppressLint("InvalidColorHexValue")
@@ -61,7 +73,7 @@ fun Ticket(navController: NavHostController) {
         animationSpec = tween(durationMillis = 2500)
     )
 
-    Image(painter = painterResource(R.drawable.drawing),
+    Image(painter = painterResource(R.drawable.drawing11),
         contentDescription ="",
         contentScale = ContentScale.Crop,
     modifier = Modifier.fillMaxSize())
@@ -84,7 +96,8 @@ fun Ticket(navController: NavHostController) {
         {
 
             Logo(Modifier.align(Alignment.Center))
-            AnimateAsFloatContent()
+
+            DraggableObject(caption = "d" )
         }
         Column(modifier = Modifier
             .fillMaxWidth()
@@ -93,7 +106,6 @@ fun Ticket(navController: NavHostController) {
             SecondCard(modifier = Modifier.weight(1f))
         }
         Progress()
-
     }
 
 }
@@ -215,7 +227,7 @@ fun FirstCard(modifier : Modifier) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp, 0.dp, 8.dp, 8.dp)
+            .padding(8.dp, 32.dp, 8.dp, 8.dp)
             .border(1.dp, Color.Black, shape = RoundedCornerShape(15))
             .height(130.dp),
         elevation = 10.dp,
@@ -232,15 +244,15 @@ fun FirstCard(modifier : Modifier) {
                 text = "RTC - 1 fare",
                 modifier = Modifier
                     .align(Alignment.Start)
-                    .padding(16.dp, 0.dp, 0.dp, 0.dp)
+                    .padding(16.dp, 0.dp, 0.dp, 16.dp)
                     .fillMaxHeight(0.20f),
                 fontSize = 23.sp,
                 fontWeight = FontWeight.Bold            )
             Text(
                 text = "Validity period",
-                modifier = Modifier.fillMaxHeight(0.40f),
+                modifier = Modifier.fillMaxHeight(0.350f),
                 fontWeight = FontWeight.Bold,
-                fontSize = 12.sp)
+                fontSize = 20.sp)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -295,7 +307,9 @@ fun SecondCard(modifier : Modifier) {
 
     val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
     val simpleTimeFormat = SimpleDateFormat("hh:MM")
-
+    val Lato = FontFamily(
+        Font(R.font.overpass_extrabold),
+    )
     val currentDT: String = simpleDateFormat.format(Date())
     val currentTime: String = simpleTimeFormat.format(Date())
 
@@ -316,7 +330,7 @@ fun SecondCard(modifier : Modifier) {
             Text(
                 text = "For RTC only",
                 modifier = Modifier.fillMaxHeight(0.20f),
-                fontSize = 10.sp,
+                fontSize = 20.sp,
             )
             Row(
                 modifier = Modifier
@@ -339,14 +353,12 @@ fun SecondCard(modifier : Modifier) {
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
                         fontSize = 23.sp,
-                       fontFamily = FontFamily(R.)
                     )
                     Text(
                         currentTime.toString(),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         fontSize = 20.sp,
-                        fontFamily = FontFamily.SansSerif
                     )
                 }
                 Spacer(modifier = Modifier.fillMaxWidth(0.25f))
@@ -433,7 +445,7 @@ fun Progress() {
         progress = 0.1f,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp, 0.dp, 16.dp, 16.dp)
+            .padding(16.dp, 0.dp, 16.dp, 32.dp)
             .clip(RoundedCornerShape(50))
             .height(10.dp),
         backgroundColor = Color.Black,
@@ -442,15 +454,18 @@ fun Progress() {
 }
 
 @Composable
-private fun AnimateAsFloatContent() {
-    var isRotated by rememberSaveable { mutableStateOf(true) }
+private fun AnimateAsFloatContent(isTouched : Boolean
+) {
+    var duration by rememberSaveable {mutableStateOf(3000)}
 
         val rotationAngle = infiniteRepeatable<Float>(
         animation = tween(
-            durationMillis = 3500,
+            durationMillis = 5000,
             easing = LinearEasing,
         )
     )
+
+
     val xRotation by animateValues(
         values = listOf(0f, 180f, 180f, 0f, 0f),
         animationSpec = rotationAngle
@@ -464,18 +479,16 @@ private fun AnimateAsFloatContent() {
         animationSpec = rotationAngle
     )
     val zFastRotation by animateValues(
-        values = listOf(-360f,360f),
+        values = listOf(-500f,0f),
         animationSpec = rotationAngle
     )
-
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         var rotation : Float = 0f
         Box(modifier = Modifier
-            .clickable { rotation += zRotation + 400f }
             .graphicsLayer {
-                rotationZ = zRotation
-            rotation}
+                if(isTouched){rotationZ = zRotation} else {rotationZ = zFastRotation}
+            }
         ) {
             Spinning(modifier = Modifier.graphicsLayer {  })
         }
@@ -510,4 +523,37 @@ fun animateValues(
         }
     }
     return state
+}
+@Composable
+fun DraggableObject(caption: String){
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
+    var isTouched : Boolean = false
+    Box(
+        Modifier
+            .size(250.dp)
+            .offset {
+                IntOffset(
+                    x = offsetX.roundToInt(),
+                    y = offsetY.roundToInt()
+                )
+            }
+            .pointerInput(Unit) {
+                detectDragGestures (
+                    onDrag = { change, dragAmount ->
+                        offsetX += dragAmount.x
+                        offsetY += dragAmount.y
+                        isTouched == true
+                    },
+                onDragEnd = {
+                    offsetX -= offsetX
+                    offsetY -= offsetY
+                }
+                )
+            }
+            .clip(CircleShape)
+            .padding(25.dp)
+    ){
+        AnimateAsFloatContent(isTouched = isTouched)
+    }
 }
