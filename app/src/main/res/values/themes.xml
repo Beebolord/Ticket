@@ -16,7 +16,9 @@
 
     <style name="Theme.Ticket.NoActionBar">
         <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+        <item name="windowNoTitle">false</item>
+        <item name="android:windowFullscreen">true</item>
+
     </style>
 
     <style name="Theme.Ticket.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

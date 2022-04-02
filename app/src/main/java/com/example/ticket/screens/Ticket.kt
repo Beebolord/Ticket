@@ -23,6 +23,7 @@ import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -52,6 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import com.example.ticket.R
 import com.example.ticket.R.drawable.logo
@@ -63,10 +66,10 @@ import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
+@ExperimentalComposeUiApi
 @SuppressLint("InvalidColorHexValue")
 @Composable
 fun Ticket(navController: NavHostController) {
-
     var isRotated by rememberSaveable { mutableStateOf(false) }
     val rotationAngle by animateFloatAsState(
         targetValue = if (isRotated) 360F else 0f,
@@ -97,7 +100,6 @@ fun Ticket(navController: NavHostController) {
 
             Logo(Modifier.align(Alignment.Center))
 
-            DraggableObject(caption = "d" )
         }
         Column(modifier = Modifier
             .fillMaxWidth()
@@ -107,7 +109,15 @@ fun Ticket(navController: NavHostController) {
         }
         Progress()
     }
-
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+        .fillMaxSize()
+        .padding(0.dp,(35+32).dp,0.dp,0.dp))
+    {
+        DraggableObject(caption = "aaaaaaah")
+    }
 }
 
 
@@ -244,7 +254,7 @@ fun FirstCard(modifier : Modifier) {
                 text = "RTC - 1 fare",
                 modifier = Modifier
                     .align(Alignment.Start)
-                    .padding(16.dp, 0.dp, 0.dp, 16.dp)
+                    .padding(16.dp, 0.dp, 0.dp, 8.dp)
                     .fillMaxHeight(0.20f),
                 fontSize = 23.sp,
                 fontWeight = FontWeight.Bold            )
@@ -268,11 +278,13 @@ fun FirstCard(modifier : Modifier) {
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 23.sp,
+                        fontSize = 30.sp,
                     )
                     Text(
                         currentTime.toString(),
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
                         textAlign = TextAlign.Center,
                         fontSize = 20.sp,
                         fontFamily = FontFamily.SansSerif
@@ -286,11 +298,13 @@ fun FirstCard(modifier : Modifier) {
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 23.sp,
+                        fontSize = 30.sp,
                     )
                     Text(
                         currentTime.toString(),
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
                         textAlign = TextAlign.Center,
                         fontSize = 20.sp,
                         fontFamily = FontFamily.SansSerif
@@ -352,7 +366,7 @@ fun SecondCard(modifier : Modifier) {
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 23.sp,
+                        fontSize = 30.sp,
                     )
                     Text(
                         currentTime.toString(),
@@ -367,7 +381,7 @@ fun SecondCard(modifier : Modifier) {
                 text = "1-234FA2987BA4",
                 modifier = Modifier.fillMaxHeight(0.99f),
                 fontWeight = FontWeight.Bold,
-                fontSize = 23.sp
+                fontSize = 30.sp
             )
         }
     }
@@ -426,13 +440,13 @@ fun Spinning(modifier : Modifier) {
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape)
-                        .background(Color.Red)
+                        .background(Color(0xFF001F3F))
                 )
                 Box(
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape)
-                        .background(Color.Blue)
+                        .background(Color(0xFFFD4036))
                 )
             }
         }
@@ -453,12 +467,25 @@ fun Progress() {
     )
 }
 
+@ExperimentalComposeUiApi
 @Composable
 private fun AnimateAsFloatContent(isTouched : Boolean
 ) {
-    var duration by rememberSaveable {mutableStateOf(3000)}
+    val count = remember { mutableStateOf(0) }
+    val countTouched = remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    var duration by rememberSaveable {mutableStateOf(3000000)}
+    var IWasTouched = false
+    var clicked = 0
 
-        val rotationAngle = infiniteRepeatable<Float>(
+    val rotationAngle = infiniteRepeatable<Float>(
+        animation = tween(
+            durationMillis = 5000000,
+            easing = LinearEasing,
+        )
+    )
+    val fasterRotationAngle = infiniteRepeatable<Float>(
+
         animation = tween(
             durationMillis = 5000,
             easing = LinearEasing,
@@ -466,33 +493,77 @@ private fun AnimateAsFloatContent(isTouched : Boolean
     )
 
 
-    val xRotation by animateValues(
-        values = listOf(0f, 180f, 180f, 0f, 0f),
-        animationSpec = rotationAngle
-    )
-    val yRotation by animateValues(
-        values = listOf(0f, 0f, 180f, 180f, 0f),
-        animationSpec = rotationAngle
-    )
     val zRotation by animateValues(
         values = listOf(-360f,360f),
         animationSpec = rotationAngle
     )
     val zFastRotation by animateValues(
-        values = listOf(-500f,0f),
-        animationSpec = rotationAngle
+        values = listOf(-90f,368f),
+        animationSpec = fasterRotationAngle
     )
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clickable{clicked  += 1}
+            .pointerInteropFilter {
+                when (it.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        count.value += 100
+                        countTouched.value = true
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        count.value += 100
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        Toast.makeText(context, "upping", Toast.LENGTH_LONG).show()
+
+                    }
+                    else -> false
+                }
+                IWasTouched
+            }
+    ) {
         var rotation : Float = 0f
+
+
         Box(modifier = Modifier
             .graphicsLayer {
-                if(isTouched){rotationZ = zRotation} else {rotationZ = zFastRotation}
+                rotationZ = zFastRotation
+                }
+            .clickable{clicked  += 1}
+            .pointerInteropFilter {
+                when (it.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        count.value += 100
+                        countTouched.value  = true
+
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        count.value += 100
+                    }
+                    MotionEvent.ACTION_UP -> {
+                       countTouched.value = false
+                    }
+                    else -> false
+                }
+                true
+            }
+            .graphicsLayer {
+                if(countTouched.value){rotationZ = zFastRotation} else {rotationZ = zRotation}
             }
         ) {
-            Spinning(modifier = Modifier.graphicsLayer {  })
+
+            Spinning(modifier = Modifier
+                .graphicsLayer {  }
+                .clickable{IWasTouched = true})
         }
-    }}
+    }
+    if(IWasTouched) {
+        Toast.makeText(context, "down", Toast.LENGTH_LONG).show()
+    }
+
+}
 
 @Composable
 fun animateValues(
@@ -524,6 +595,7 @@ fun animateValues(
     }
     return state
 }
+@ExperimentalComposeUiApi
 @Composable
 fun DraggableObject(caption: String){
     var offsetX by remember { mutableStateOf(0f) }
@@ -539,16 +611,16 @@ fun DraggableObject(caption: String){
                 )
             }
             .pointerInput(Unit) {
-                detectDragGestures (
+                detectDragGestures(
                     onDrag = { change, dragAmount ->
                         offsetX += dragAmount.x
                         offsetY += dragAmount.y
                         isTouched == true
                     },
-                onDragEnd = {
-                    offsetX -= offsetX
-                    offsetY -= offsetY
-                }
+                    onDragEnd = {
+                        offsetX -= offsetX
+                        offsetY -= offsetY
+                    }
                 )
             }
             .clip(CircleShape)
