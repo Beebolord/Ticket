@@ -3,10 +3,7 @@ package com.example.ticket.screens
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.content.Context
-import android.util.Log
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.Toast
@@ -14,7 +11,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import android.view.MotionEvent
-import androidx.annotation.ColorInt
 import androidx.compose.foundation.gestures.detectDragGestures
 
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -59,15 +55,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.ticket.Data.HexaCode
 import com.example.ticket.R
 import com.example.ticket.R.drawable.logo
-import com.example.ticket.viewmodels.OverviewViewModel
 import java.lang.Math.*
 import java.lang.reflect.Array.get
 import java.text.SimpleDateFormat
@@ -123,8 +113,8 @@ fun Ticket(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
-            .fillMaxSize()
-            .padding(0.dp, (35 + 32).dp, 0.dp, 0.dp))
+        .fillMaxSize()
+        .padding(0.dp,(35+32).dp,0.dp,0.dp))
     {
         DraggableObject(caption = "aaaaaaah")
     }
@@ -240,8 +230,6 @@ fun QrCode(modifier : Modifier) {
 fun FirstCard(modifier : Modifier) {
     val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
     val simpleTimeFormat = SimpleDateFormat("hh:MM")
-    val viewModel: OverviewViewModel = hiltViewModel()
-    val JsonData = viewModel.status.value
 
     val currentDT: String = simpleDateFormat.format(Date())
     val currentTime: String = simpleTimeFormat.format(Date())
@@ -286,7 +274,7 @@ fun FirstCard(modifier : Modifier) {
                     modifier = Modifier.fillMaxWidth(0.50f)
                 ) {
                     Text(
-                        text = "$JsonData",
+                        currentDT,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
@@ -411,7 +399,7 @@ fun Logo(modifier : Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                .background(Color(0xFFFFFFE))
+                .background(Color(0xFFFFFFFFF))
         ) {
             Image(
                 painter = painterResource(R.drawable.logo55),
@@ -423,16 +411,12 @@ fun Logo(modifier : Modifier) {
 
     }
 }
-
-@SuppressLint("UnrememberedMutableState")
 @Composable
 fun Spinning(modifier : Modifier) {
-    var whitey = 0xFFFFFFFF
     var isRotated by rememberSaveable { mutableStateOf(false) }
-
     val rotationAngle by animateFloatAsState(
         targetValue = if (isRotated) 360F else 0f,
-        animationSpec = tween(durationMillis = 2500,easing = LinearEasing)
+        animationSpec = tween(durationMillis = 2500)
     )
 
     Box(
@@ -456,13 +440,13 @@ fun Spinning(modifier : Modifier) {
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFFFFFFF))
+                        .background(Color(0xFF001F3F))
                 )
                 Box(
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape)
-                        .background(Color(whitey))
+                        .background(Color(0xFFFD4036))
                 )
             }
         }
@@ -497,47 +481,31 @@ private fun AnimateAsFloatContent(isTouched : Boolean
     val rotationAngle = infiniteRepeatable<Float>(
         animation = tween(
             durationMillis = 5000000,
-            easing =  LinearEasing
+            easing = LinearEasing,
         )
     )
     val fasterRotationAngle = infiniteRepeatable<Float>(
+
         animation = tween(
             durationMillis = 5000,
-            delayMillis = 0,
-            easing =  LinearEasing
+            easing = LinearEasing,
         )
     )
 
 
     val zRotation by animateValues(
-        values = listOf(360f,0f,360f,0f),
+        values = listOf(-360f,360f),
         animationSpec = rotationAngle
     )
     val zFastRotation by animateValues(
-        values = listOf(-360f,368f),
+        values = listOf(-90f,368f),
         animationSpec = fasterRotationAngle
     )
-    val infiniteTransition = rememberInfiniteTransition()
-    val angle by infiniteTransition.animateFloat(
-        initialValue = 0F,
-        targetValue = 360F,
-        animationSpec = infiniteRepeatable(
-            animation = tween(100000, easing = LinearOutSlowInEasing)
-        )
-    )
-    val fastAngle by infiniteTransition.animateFloat(
-        initialValue = 0F,
-        targetValue = 360F,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2500, easing = LinearEasing)
-        )
-    )
-
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clickable { clicked += 1 }
+            .clickable{clicked  += 1}
             .pointerInteropFilter {
                 when (it.action) {
                     MotionEvent.ACTION_DOWN -> {
@@ -548,9 +516,7 @@ private fun AnimateAsFloatContent(isTouched : Boolean
                         count.value += 100
                     }
                     MotionEvent.ACTION_UP -> {
-                        Toast
-                            .makeText(context, "upping", Toast.LENGTH_LONG)
-                            .show()
+                        Toast.makeText(context, "upping", Toast.LENGTH_LONG).show()
 
                     }
                     else -> false
@@ -564,37 +530,33 @@ private fun AnimateAsFloatContent(isTouched : Boolean
         Box(modifier = Modifier
             .graphicsLayer {
                 rotationZ = zFastRotation
-            }
-            .clickable { clicked += 1 }
+                }
+            .clickable{clicked  += 1}
             .pointerInteropFilter {
                 when (it.action) {
                     MotionEvent.ACTION_DOWN -> {
                         count.value += 100
-                        countTouched.value = true
+                        countTouched.value  = true
 
                     }
                     MotionEvent.ACTION_MOVE -> {
                         count.value += 100
                     }
                     MotionEvent.ACTION_UP -> {
-                        countTouched.value = false
+                       countTouched.value = false
                     }
                     else -> false
                 }
                 true
             }
             .graphicsLayer {
-                if (countTouched.value) {
-                    rotationZ = fastAngle
-                } else {
-                    rotationZ = angle
-                }
+                if(countTouched.value){rotationZ = zFastRotation} else {rotationZ = zRotation}
             }
         ) {
 
             Spinning(modifier = Modifier
-                .graphicsLayer { }
-                .clickable { IWasTouched = true })
+                .graphicsLayer {  }
+                .clickable{IWasTouched = true})
         }
     }
     if(IWasTouched) {
@@ -616,7 +578,7 @@ fun animateValues(
         val (_, setValue) = state
         // Start the animation from 0 to groups quantity
         animate(
-            initialValue =0f,
+            initialValue = 0f,
             targetValue = groups.size.toFloat(),
             animationSpec = animationSpec,
         ) { frame, _ ->
@@ -667,5 +629,3 @@ fun DraggableObject(caption: String){
         AnimateAsFloatContent(isTouched = isTouched)
     }
 }
-
-

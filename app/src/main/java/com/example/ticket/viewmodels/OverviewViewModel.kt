@@ -30,15 +30,14 @@ import javax.inject.Inject
 /**
  * The [ViewModel] that is attached to the [OverviewFragment].
  */
-@HiltViewModel
 class OverviewViewModel @Inject constructor(
 
-        private val api: HexaCodeApi.MarsApi.retrofitService
+        private val api: HexaCodeApi.MarsApi
 ) : ViewModel() {
     // The internal MutableLiveData that stores the status of the most recent request
 
     private val _status = MutableLiveData<String>()
-
+    private val
     // The external immutable LiveData for the request status
     val status: LiveData<String> = _status
     /**
