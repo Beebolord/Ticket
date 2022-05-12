@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Ticket</string>
+    <string name="texting">texting %d</string>
 </resources>

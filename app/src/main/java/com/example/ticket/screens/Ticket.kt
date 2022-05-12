@@ -21,6 +21,7 @@ import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults.elevation
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -45,6 +46,7 @@ import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -60,6 +62,7 @@ import androidx.navigation.NavHostController
 import com.example.ticket.R
 import com.example.ticket.R.drawable.logo
 import com.example.ticket.viewmodels.OverviewViewModel
+import com.example.ticket.viewmodels.UiText
 import java.lang.Math.*
 import java.lang.reflect.Array.get
 import java.text.SimpleDateFormat
@@ -326,6 +329,10 @@ fun SecondCard(modifier : Modifier) {
     val viewModel : OverviewViewModel = viewModel()
     val currentDT: String = simpleDateFormat.format(Date())
     val currentTime: String = simpleTimeFormat.format(Date())
+    val context = LocalContext.current
+    val customerName: String by viewModel.customerName.observeAsState("")
+
+    val firstColorCode : Long by viewModel.firstColorCode.observeAsState(0xff000000)
 
     Card(
         modifier = Modifier
@@ -342,9 +349,10 @@ fun SecondCard(modifier : Modifier) {
                 .fillMaxSize()
         ) {
             Text(
-                text = "${viewModel.status.value}",
+                text = "${firstColorCode}",
                 modifier = Modifier.fillMaxHeight(0.20f),
                 fontSize = 20.sp,
+                color = Color(firstColorCode)
             )
             Row(
                 modifier = Modifier

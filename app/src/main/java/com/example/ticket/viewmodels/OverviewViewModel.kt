@@ -23,6 +23,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ticket.Data.HexaCode
 import com.example.ticket.Data.HexaCodeApi
+import com.example.ticket.R
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -30,10 +33,15 @@ import kotlinx.coroutines.launch
  */
 class OverviewViewModel() : ViewModel() {
     // The internal MutableLiveData that stores the status of the most recent request
+    private val errorChannel = Channel<UiText>()
+    val errors = errorChannel.receiveAsFlow()
 
-    private val _status = MutableLiveData<String>()
+    private val _status = MutableLiveData<List<HexaCode>>()
     // The external immutable LiveData for the request status
-    val status: LiveData<String> = _status
+    val status: LiveData<List<HexaCode>> = _status
+
+    var customerName: MutableLiveData<String> = MutableLiveData("")
+    var firstColorCode : MutableLiveData<Long> = MutableLiveData(0 )
     /**
      * Call getMarsPhotos() on init so we can display status immediately.
      */
@@ -49,8 +57,12 @@ class OverviewViewModel() : ViewModel() {
         viewModelScope.launch() {
             try {
                 val listResult : List<HexaCode> = HexaCodeApi.MarsApi.retrofitService.getPosts()
-                _status.value = listResult[1].hexadecimal
-                Log.e("OverviewModel","Yoooooo")
+                _status.value = listResult
+                customerName.value = listResult.get(0).hexadecimal.toString()
+
+                firstColorCode.value = listResult.get(1).hexadecimal
+
+                Log.e("OverviewModel","Yoooooo ${listResult.get(0).hexadecimal}")
 
             } catch (e: Exception) {
                 Log.e("OverviewModel","Yoooooo ")
