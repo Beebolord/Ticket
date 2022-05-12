@@ -23,21 +23,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ticket.Data.HexaCode
 import com.example.ticket.Data.HexaCodeApi
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * The [ViewModel] that is attached to the [OverviewFragment].
  */
-class OverviewViewModel @Inject constructor(
-
-        private val api: HexaCodeApi.MarsApi
-) : ViewModel() {
+class OverviewViewModel() : ViewModel() {
     // The internal MutableLiveData that stores the status of the most recent request
 
     private val _status = MutableLiveData<String>()
-    private val
     // The external immutable LiveData for the request status
     val status: LiveData<String> = _status
     /**
@@ -56,10 +50,11 @@ class OverviewViewModel @Inject constructor(
             try {
                 val listResult : List<HexaCode> = HexaCodeApi.MarsApi.retrofitService.getPosts()
                 _status.value = listResult[1].hexadecimal
-                Log.e("OverviewModel","Yoooooo ${listResult}")
+                Log.e("OverviewModel","Yoooooo")
 
             } catch (e: Exception) {
-                _status.value = "It failed ${e.message}"
+                Log.e("OverviewModel","Yoooooo ")
+
             }
 
             }

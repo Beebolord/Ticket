@@ -55,9 +55,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.ticket.R
 import com.example.ticket.R.drawable.logo
+import com.example.ticket.viewmodels.OverviewViewModel
 import java.lang.Math.*
 import java.lang.reflect.Array.get
 import java.text.SimpleDateFormat
@@ -113,8 +115,8 @@ fun Ticket(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
-        .fillMaxSize()
-        .padding(0.dp,(35+32).dp,0.dp,0.dp))
+            .fillMaxSize()
+            .padding(0.dp, (35 + 32).dp, 0.dp, 0.dp))
     {
         DraggableObject(caption = "aaaaaaah")
     }
@@ -321,9 +323,7 @@ fun SecondCard(modifier : Modifier) {
 
     val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
     val simpleTimeFormat = SimpleDateFormat("hh:MM")
-    val Lato = FontFamily(
-        Font(R.font.overpass_extrabold),
-    )
+    val viewModel : OverviewViewModel = viewModel()
     val currentDT: String = simpleDateFormat.format(Date())
     val currentTime: String = simpleTimeFormat.format(Date())
 
@@ -342,7 +342,7 @@ fun SecondCard(modifier : Modifier) {
                 .fillMaxSize()
         ) {
             Text(
-                text = "For RTC only",
+                text = "${viewModel.status.value}",
                 modifier = Modifier.fillMaxHeight(0.20f),
                 fontSize = 20.sp,
             )
@@ -505,7 +505,7 @@ private fun AnimateAsFloatContent(isTouched : Boolean
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clickable{clicked  += 1}
+            .clickable { clicked += 1 }
             .pointerInteropFilter {
                 when (it.action) {
                     MotionEvent.ACTION_DOWN -> {
@@ -516,7 +516,9 @@ private fun AnimateAsFloatContent(isTouched : Boolean
                         count.value += 100
                     }
                     MotionEvent.ACTION_UP -> {
-                        Toast.makeText(context, "upping", Toast.LENGTH_LONG).show()
+                        Toast
+                            .makeText(context, "upping", Toast.LENGTH_LONG)
+                            .show()
 
                     }
                     else -> false
@@ -530,33 +532,37 @@ private fun AnimateAsFloatContent(isTouched : Boolean
         Box(modifier = Modifier
             .graphicsLayer {
                 rotationZ = zFastRotation
-                }
-            .clickable{clicked  += 1}
+            }
+            .clickable { clicked += 1 }
             .pointerInteropFilter {
                 when (it.action) {
                     MotionEvent.ACTION_DOWN -> {
                         count.value += 100
-                        countTouched.value  = true
+                        countTouched.value = true
 
                     }
                     MotionEvent.ACTION_MOVE -> {
                         count.value += 100
                     }
                     MotionEvent.ACTION_UP -> {
-                       countTouched.value = false
+                        countTouched.value = false
                     }
                     else -> false
                 }
                 true
             }
             .graphicsLayer {
-                if(countTouched.value){rotationZ = zFastRotation} else {rotationZ = zRotation}
+                if (countTouched.value) {
+                    rotationZ = zFastRotation
+                } else {
+                    rotationZ = zRotation
+                }
             }
         ) {
 
             Spinning(modifier = Modifier
-                .graphicsLayer {  }
-                .clickable{IWasTouched = true})
+                .graphicsLayer { }
+                .clickable { IWasTouched = true })
         }
     }
     if(IWasTouched) {

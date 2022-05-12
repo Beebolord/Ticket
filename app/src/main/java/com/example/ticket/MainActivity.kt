@@ -29,9 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.ticket.screens.Home
 import com.example.ticket.screens.Ticket
 import com.example.ticket.ui.theme.TicketTheme
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @ExperimentalComposeUiApi
     override fun onCreate(savedInstanceState: Bundle?) {
