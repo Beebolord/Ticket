@@ -42,6 +42,7 @@ class OverviewViewModel() : ViewModel() {
 
     var customerName: MutableLiveData<String> = MutableLiveData("")
     var firstColorCode : MutableLiveData<Long> = MutableLiveData(0 )
+    var SecondColorCode : MutableLiveData<Long> = MutableLiveData(0 )
     /**
      * Call getMarsPhotos() on init so we can display status immediately.
      */
@@ -61,7 +62,7 @@ class OverviewViewModel() : ViewModel() {
                 customerName.value = listResult.get(0).hexadecimal.toString()
 
                 firstColorCode.value = listResult.get(1).hexadecimal
-
+                SecondColorCode.value = listResult.get(0).hexadecimal
                 Log.e("OverviewModel","Yoooooo ${listResult.get(0).hexadecimal}")
 
             } catch (e: Exception) {

@@ -100,12 +100,14 @@ fun Ticket(navController: NavHostController) {
                 Back(modifier = Modifier)
                 Back1(modifier = Modifier)
         }
+        Spacer(modifier = Modifier.height(25.dp))
         Box(contentAlignment = Alignment.Center)
         {
 
             Logo(Modifier.align(Alignment.Center))
 
         }
+        Spacer(modifier = Modifier.height(20.dp))
         Column(modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp, 0.dp, 0.dp, 8.dp)) {
@@ -256,18 +258,17 @@ fun FirstCard(modifier : Modifier) {
                 .background(Color(0xFFFFFFFFF))
         ) {
             Text(
-                text = "RTC - 1 fare",
+                text = "RTC - Mensuel",
                 modifier = Modifier
                     .align(Alignment.Start)
                     .padding(16.dp, 0.dp, 0.dp, 8.dp)
                     .fillMaxHeight(0.20f),
-                fontSize = 23.sp,
+                fontSize = 26.sp,
                 fontWeight = FontWeight.Bold            )
             Text(
                 text = "Validity period",
-                modifier = Modifier.fillMaxHeight(0.350f),
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp)
+                modifier = Modifier.fillMaxHeight(0.250f),
+                fontSize = 18.sp)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -349,10 +350,9 @@ fun SecondCard(modifier : Modifier) {
                 .fillMaxSize()
         ) {
             Text(
-                text = "${firstColorCode}",
+                text = "For RTC only",
                 modifier = Modifier.fillMaxHeight(0.20f),
-                fontSize = 20.sp,
-                color = Color(firstColorCode)
+                fontSize = 20.sp
             )
             Row(
                 modifier = Modifier
@@ -400,7 +400,7 @@ fun Logo(modifier : Modifier) {
     Card(
         modifier = Modifier
             .clip(CircleShape)
-            .size(150.dp)
+            .size(135.dp)
             .border(1.dp, Color.Black, shape = CircleShape)
     ) {
         Column(
@@ -421,16 +421,21 @@ fun Logo(modifier : Modifier) {
 }
 @Composable
 fun Spinning(modifier : Modifier) {
+    val viewModel : OverviewViewModel = viewModel()
+    val context = LocalContext.current
+    val customerName: String by viewModel.customerName.observeAsState("")
+    val firstColorCode : Long by viewModel.firstColorCode.observeAsState(0xff000000)
+    val secondColorCode : Long by viewModel.SecondColorCode.observeAsState(0xff000000)
+
     var isRotated by rememberSaveable { mutableStateOf(false) }
     val rotationAngle by animateFloatAsState(
         targetValue = if (isRotated) 360F else 0f,
-        animationSpec = tween(durationMillis = 2500)
+        animationSpec = tween(durationMillis = 50000, 0, easing = LinearEasing)
     )
 
     Box(
         modifier = Modifier
             .size(200.dp)
-            .rotate(rotationAngle)
             .clip(CircleShape),
 
     ) {
@@ -446,15 +451,15 @@ fun Spinning(modifier : Modifier) {
 
                 Box(
                     modifier = Modifier
-                        .size(50.dp)
+                        .size(49.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF001F3F))
+                        .background(Color(firstColorCode))
                 )
                 Box(
                     modifier = Modifier
-                        .size(50.dp)
+                        .size(49.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFFD4036))
+                        .background(Color(secondColorCode))
                 )
             }
         }
@@ -486,29 +491,25 @@ private fun AnimateAsFloatContent(isTouched : Boolean
     var IWasTouched = false
     var clicked = 0
 
-    val rotationAngle = infiniteRepeatable<Float>(
-        animation = tween(
-            durationMillis = 5000000,
-            easing = LinearEasing,
-        )
-    )
-    val fasterRotationAngle = infiniteRepeatable<Float>(
-
-        animation = tween(
-            durationMillis = 5000,
-            easing = LinearEasing,
+    val infiniteTransition = rememberInfiniteTransition()
+    val angle by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360F,
+        animationSpec = infiniteRepeatable(
+            animation = tween(8000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
         )
     )
 
+    val fastAngle by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360F,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        )
+    )
 
-    val zRotation by animateValues(
-        values = listOf(-360f,360f),
-        animationSpec = rotationAngle
-    )
-    val zFastRotation by animateValues(
-        values = listOf(-90f,368f),
-        animationSpec = fasterRotationAngle
-    )
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -534,13 +535,11 @@ private fun AnimateAsFloatContent(isTouched : Boolean
                 IWasTouched
             }
     ) {
-        var rotation : Float = 0f
+
 
 
         Box(modifier = Modifier
-            .graphicsLayer {
-                rotationZ = zFastRotation
-            }
+
             .clickable { clicked += 1 }
             .pointerInteropFilter {
                 when (it.action) {
@@ -561,9 +560,9 @@ private fun AnimateAsFloatContent(isTouched : Boolean
             }
             .graphicsLayer {
                 if (countTouched.value) {
-                    rotationZ = zFastRotation
+                    rotationZ = fastAngle
                 } else {
-                    rotationZ = zRotation
+                    rotationZ = angle
                 }
             }
         ) {
