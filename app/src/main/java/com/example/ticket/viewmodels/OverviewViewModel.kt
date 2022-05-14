@@ -16,7 +16,9 @@
 
 package com.example.ticket.viewmodels
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -27,10 +29,14 @@ import com.example.ticket.R
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.YearMonth
+import java.util.*
 
 /**
  * The [ViewModel] that is attached to the [OverviewFragment].
  */
+@RequiresApi(Build.VERSION_CODES.O)
 class OverviewViewModel() : ViewModel() {
     // The internal MutableLiveData that stores the status of the most recent request
     private val errorChannel = Channel<UiText>()
@@ -43,9 +49,16 @@ class OverviewViewModel() : ViewModel() {
     var customerName: MutableLiveData<String> = MutableLiveData("")
     var firstColorCode : MutableLiveData<Long> = MutableLiveData(0 )
     var SecondColorCode : MutableLiveData<Long> = MutableLiveData(0 )
-    /**
-     * Call getMarsPhotos() on init so we can display status immediately.
-     */
+
+
+    private var now = ""
+
+
+    var startDt : String = ""
+    var endDt : String = ""
+    var nowDt : String = ""
+    var nowTime : String = ""
+
     init {
         getMarsPhotos()
     }
@@ -63,6 +76,11 @@ class OverviewViewModel() : ViewModel() {
 
                 firstColorCode.value = listResult.get(1).hexadecimal
                 SecondColorCode.value = listResult.get(0).hexadecimal
+                val calendar = Calendar.getInstance()
+                calendar.time = Date()
+                calendar.add(Calendar.HOUR_OF_DAY, 1.5.toInt())
+
+
                 Log.e("OverviewModel","Yoooooo ${listResult.get(0).hexadecimal}")
 
             } catch (e: Exception) {
@@ -70,6 +88,7 @@ class OverviewViewModel() : ViewModel() {
 
             }
 
-            }
+
+        }
     }
 }
